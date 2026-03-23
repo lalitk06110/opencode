@@ -18,3 +18,42 @@ This repository provides an enhanced OpenCode configuration with specialized ski
 - Environment variables (optional):
   - `STITCH_API_KEY`: For Stitch MCP server integration
   - `OPENCODE_DOMAIN`: For CORS configuration
+
+## Installation & Setup
+
+### Using This Configuration
+
+This configuration is designed for the OpenCode configuration directory (`~/.config/opencode`). To use it:
+
+1. **Backup your existing configuration** (if any):
+   ```bash
+   cp -r ~/.config/opencode ~/.config/opencode.backup
+   ```
+
+2. **Clone or copy this configuration**:
+   ```bash
+   # If cloning as a new configuration
+   git clone <repository-url> ~/.config/opencode-new
+   mv ~/.config/opencode-new/* ~/.config/opencode/
+   ```
+
+3. **Configure environment variables** (optional):
+   ```bash
+   # Add to your shell profile (~/.bashrc, ~/.zshrc, etc.)
+   export STITCH_API_KEY="your-stitch-api-key"
+   export OPENCODE_DOMAIN="your-opencode-domain"
+   ```
+
+4. **Verify configuration**:
+   ```bash
+   opencode --version
+   ```
+
+### Configuration Structure
+
+The main configuration file is `opencode.json` which defines:
+- Server settings (CORS, domains)
+- Plugin integrations (superpowers)
+- Permission system
+- Agent definitions with model assignments
+- MCP server configurations
