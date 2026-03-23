@@ -276,3 +276,56 @@ feature "add user profile page"
 3. **Trust the agent hierarchy**: The system selects appropriate agents automatically
 4. **Use @ syntax for explicit skill invocation**: When you know which skill you need
 5. **Review generated specs/plans**: Always review before implementation
+
+## Troubleshooting & FAQ
+
+### Common Issues
+
+#### Issue: Skills not activating
+**Solution**: Check skill triggers match your task description. Use `@skill-name` for explicit invocation.
+
+#### Issue: Permission denied for tools
+**Solution**: Verify agent has required permissions in `opencode.json`. Check agent model assignments.
+
+#### Issue: Stitch MCP server not connecting
+**Solution**: 
+1. Set `STITCH_API_KEY` environment variable
+2. Enable Stitch in `opencode.json`: `"enabled": true`
+3. Check network connectivity
+
+#### Issue: Superpowers plugin not loading
+**Solution**: 
+1. Verify plugin URL in `opencode.json`
+2. Check internet connectivity for git clone
+3. Restart OpenCode
+
+### Frequently Asked Questions
+
+#### Q: How do I add a new skill?
+**A**: Use `create-skill` command or `@skill-creator` skill. Follow interactive prompts.
+
+#### Q: Can I use different AI models?
+**A**: Yes, edit `opencode.json` agent model assignments. Supported models depend on your OpenCode provider.
+
+#### Q: How do I enable Notion integration?
+**A**: Set `"enabled": true` in the Notion MCP configuration in `opencode.json`.
+
+#### Q: Can I customize the permission system?
+**A**: Yes, edit the `permission` section in `opencode.json`. Use deny-by-default for security.
+
+#### Q: How do I contribute improvements?
+**A**: Fork the repository, make changes, and submit a pull request.
+
+### Debugging Tips
+
+1. **Check logs**: OpenCode provides session logs for debugging
+2. **Verify environment variables**: `echo $STITCH_API_KEY`
+3. **Test permissions**: Try simple commands first
+4. **Isolate issues**: Disable plugins/MCP servers to identify problems
+5. **Review agent assignments**: Check which agent is handling your task
+
+### Getting Help
+
+- **OpenCode Documentation**: https://opencode.ai/docs
+- **GitHub Issues**: Report bugs or request features
+- **Community Support**: OpenCode community forums
