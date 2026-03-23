@@ -79,3 +79,36 @@ OpenCode skills are specialized workflows that activate automatically based on t
 ### Skill Activation
 
 Skills activate automatically when their triggers match the task context. You can also explicitly invoke skills using `@skill-name` syntax.
+
+## Agents Reference
+
+This configuration uses a multi-tier agent system with different models assigned based on task complexity:
+
+### High Complexity Agents
+| Agent | Purpose | Model | When Invoked |
+|-------|---------|-------|--------------|
+| **creation-orchestrator** | Orchestrates creation workflows across skills, agents, and commands | openai/gpt-5.4 | Complex multi-step creation tasks |
+| **feature-lead** | Leads feature development from spec to implementation | openai/gpt-5.4 | Major feature implementation |
+| **debug-lead** | Leads debugging of complex issues across systems | openai/gpt-5.4 | Complex debugging scenarios |
+
+### Medium Complexity Agents
+| Agent | Purpose | Model | When Invoked |
+|-------|---------|-------|--------------|
+| **reviewer** | Reviews code, specs, and plans for quality and correctness | deepseek/deepseek-reasoner | Code review, spec review, plan review |
+| **feature-manager** | Manages feature implementation tasks and coordination | openai/gpt-5.3-codex | Feature task management |
+| **discovery** | Explores codebases and gathers context for tasks | deepseek/deepseek-reasoner | Codebase exploration, context gathering |
+| **quick-lead** | Leads quick execution tasks and simple implementations | minimax/MiniMax-M2.7 | Quick tasks, simple implementations |
+
+### Low Complexity Agents
+| Agent | Purpose | Model | When Invoked |
+|-------|---------|-------|--------------|
+| **builder** | Executes implementation tasks from plans | minimax/MiniMax-M2.7 | Plan execution, code implementation |
+
+### Agent Dispatch Pattern
+
+Agents are dispatched based on:
+1. **Task complexity** (high/medium/low)
+2. **Task type** (creation, debugging, review, implementation)
+3. **Available context** and requirements
+
+The system automatically selects the appropriate agent based on the task characteristics.
