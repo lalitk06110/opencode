@@ -211,3 +211,68 @@ The **superpowers** plugin provides:
 - Structured workflows (brainstorming, TDD, debugging)
 - Subagent dispatch patterns
 - Plan and spec review systems
+
+## Usage Examples
+
+### Example 1: Creating a New Skill
+
+```bash
+# Invoke the skill-creator skill
+@skill-creator create data-visualization
+
+# Follow the interactive prompts:
+# 1. Skill name: data-visualization
+# 2. Description: Create data visualization components and charts
+# 3. Triggers: "chart", "graph", "visualization", "plot"
+# 4. Dependencies: d3.js, chart.js, recharts
+
+# The skill will be created in skills/data-visualization/
+```
+
+### Example 2: Debugging Code
+
+```bash
+# Use the debug command
+debug "Component rendering slowly with large datasets"
+
+# The system will:
+# 1. Dispatch debug-lead agent (high complexity)
+# 2. Analyze performance issues
+# 3. Suggest optimizations (memoization, virtualization)
+# 4. Implement fixes with builder agent
+```
+
+### Example 3: Building React Components
+
+```bash
+# Use react-ts-frontend skill
+@react-ts-frontend create DashboardComponent
+
+# Creates:
+# - src/components/DashboardComponent.tsx
+# - src/components/DashboardComponent.test.tsx
+# - Tailwind styling
+# - TypeScript interfaces
+```
+
+### Example 4: Complete Feature Workflow
+
+```bash
+# Start feature development
+feature "add user profile page"
+
+# System orchestrates:
+# 1. feature-lead agent creates specification
+# 2. designer creates UI mockups (if Stitch enabled)
+# 3. builder implements components
+# 4. reviewer validates implementation
+# 5. Tests are written and run
+```
+
+### Best Practices
+
+1. **Start with commands**: Use `feature`, `debug`, or `quick` commands for common tasks
+2. **Let skills auto-activate**: Skills trigger based on context; don't force them
+3. **Trust the agent hierarchy**: The system selects appropriate agents automatically
+4. **Use @ syntax for explicit skill invocation**: When you know which skill you need
+5. **Review generated specs/plans**: Always review before implementation
