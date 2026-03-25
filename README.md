@@ -25,6 +25,7 @@ This repository provides an enhanced OpenCode configuration with specialized ski
 - **Custom Commands**: Streamlined workflows for common tasks
 - **Superpowers Integration**: Enhanced capabilities through the superpowers plugin
 - **MCP Server Support**: Stitch and Notion integrations (configurable)
+- **Telegram Notifications**: Real-time session completion alerts via Telegram bot
 
 ## Prerequisites
 
@@ -32,6 +33,8 @@ This repository provides an enhanced OpenCode configuration with specialized ski
 - Environment variables (optional):
   - `STITCH_API_KEY`: For Stitch MCP server integration
   - `OPENCODE_DOMAIN`: For CORS configuration
+  - `OPENCODE_TELEGRAM_BOT_TOKEN`: For Telegram notifications (get from BotFather)
+  - `OPENCODE_TELEGRAM_CHAT_ID`: For Telegram notifications (your chat ID)
 
 ## Installation & Setup
 
@@ -40,11 +43,13 @@ This repository provides an enhanced OpenCode configuration with specialized ski
 This configuration is designed for the OpenCode configuration directory (`~/.config/opencode`). To use it:
 
 1. **Backup your existing configuration** (if any):
+
    ```bash
    cp -r ~/.config/opencode ~/.config/opencode.backup
    ```
 
 2. **Clone or copy this configuration**:
+
    ```bash
    # If cloning as a new configuration
    git clone https://github.com/katphlab/opencode ~/.config/opencode-new
@@ -52,10 +57,13 @@ This configuration is designed for the OpenCode configuration directory (`~/.con
    ```
 
 3. **Configure environment variables** (optional):
+
    ```bash
    # Add to your shell profile (~/.bashrc, ~/.zshrc, etc.)
    export STITCH_API_KEY="your-stitch-api-key"
    export OPENCODE_DOMAIN="your-opencode-domain"
+   export OPENCODE_TELEGRAM_BOT_TOKEN="your-bot-token-from-botfather"
+   export OPENCODE_TELEGRAM_CHAT_ID="your-chat-id"
    ```
 
 4. **Verify configuration**:
@@ -66,6 +74,7 @@ This configuration is designed for the OpenCode configuration directory (`~/.con
 ### Configuration Structure
 
 The main configuration file is `opencode.json` which defines:
+
 - Server settings (CORS, domains)
 - Plugin integrations (superpowers)
 - Permission system
@@ -76,19 +85,19 @@ The main configuration file is `opencode.json` which defines:
 
 OpenCode skills are specialized workflows that activate automatically based on task context. This configuration includes:
 
-| Skill | Description | When to Use | Examples |
-|-------|-------------|-------------|----------|
-| **design-md** | Analyze Stitch projects and synthesize semantic design systems into DESIGN.md files | When working with Stitch designs that need design system documentation | `@design-md analyze project.stitch` |
-| **shadcn** | Manage shadcn components and projects — adding, searching, fixing, debugging, styling, and composing UI | When working with shadcn/ui, component registries, or projects with components.json | `@shadcn add button`, `@shadcn init` |
-| **agent-browser** | Browser automation CLI for AI agents | When needing to interact with websites, fill forms, click buttons, take screenshots, or scrape data | `@agent-browser open https://example.com`, `@agent-browser fill form` |
-| **stitch-design** | Unified entry point for Stitch design work | When doing UI/UX design work with Stitch, needs prompt enhancement or design system synthesis | `@stitch-design create dashboard` |
-| **skill-creator** | Create or update reusable OpenCode skills | When creating new skills or editing existing skills for any project | `@skill-creator create new-skill` |
-| **react-components** | Convert Stitch designs into modular Vite and React components | When converting Stitch designs to React components with AST-based validation | `@react-components convert design.stitch` |
-| **agent-creator** | Create or update OpenCode agents | When creating new agents or editing existing agents for any project | `@agent-creator create new-agent` |
-| **stitch-loop** | Iteratively build websites using Stitch with autonomous baton-passing | When building websites iteratively with Stitch using loop patterns | `@stitch-loop build portfolio-site` |
-| **enhance-prompt** | Transform vague UI ideas into polished, Stitch-optimized prompts | When needing to enhance UI prompts with specificity and design system context | `@enhance-prompt "create login page"` |
-| **command-creator** | Create or update reusable OpenCode commands | When creating new commands or editing existing commands | `@command-creator create new-command` |
-| **react-ts-frontend** | Modern React stack: React 19, TypeScript, Tailwind CSS, Vite, TanStack Query | When building React apps, components, state management, or UI | `@react-ts-frontend create component`, `@react-ts-frontend setup project` |
+| Skill                 | Description                                                                                             | When to Use                                                                                         | Examples                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **design-md**         | Analyze Stitch projects and synthesize semantic design systems into DESIGN.md files                     | When working with Stitch designs that need design system documentation                              | `@design-md analyze project.stitch`                                       |
+| **shadcn**            | Manage shadcn components and projects — adding, searching, fixing, debugging, styling, and composing UI | When working with shadcn/ui, component registries, or projects with components.json                 | `@shadcn add button`, `@shadcn init`                                      |
+| **agent-browser**     | Browser automation CLI for AI agents                                                                    | When needing to interact with websites, fill forms, click buttons, take screenshots, or scrape data | `@agent-browser open https://example.com`, `@agent-browser fill form`     |
+| **stitch-design**     | Unified entry point for Stitch design work                                                              | When doing UI/UX design work with Stitch, needs prompt enhancement or design system synthesis       | `@stitch-design create dashboard`                                         |
+| **skill-creator**     | Create or update reusable OpenCode skills                                                               | When creating new skills or editing existing skills for any project                                 | `@skill-creator create new-skill`                                         |
+| **react-components**  | Convert Stitch designs into modular Vite and React components                                           | When converting Stitch designs to React components with AST-based validation                        | `@react-components convert design.stitch`                                 |
+| **agent-creator**     | Create or update OpenCode agents                                                                        | When creating new agents or editing existing agents for any project                                 | `@agent-creator create new-agent`                                         |
+| **stitch-loop**       | Iteratively build websites using Stitch with autonomous baton-passing                                   | When building websites iteratively with Stitch using loop patterns                                  | `@stitch-loop build portfolio-site`                                       |
+| **enhance-prompt**    | Transform vague UI ideas into polished, Stitch-optimized prompts                                        | When needing to enhance UI prompts with specificity and design system context                       | `@enhance-prompt "create login page"`                                     |
+| **command-creator**   | Create or update reusable OpenCode commands                                                             | When creating new commands or editing existing commands                                             | `@command-creator create new-command`                                     |
+| **react-ts-frontend** | Modern React stack: React 19, TypeScript, Tailwind CSS, Vite, TanStack Query                            | When building React apps, components, state management, or UI                                       | `@react-ts-frontend create component`, `@react-ts-frontend setup project` |
 
 ### Skill Activation
 
@@ -99,28 +108,32 @@ Skills activate automatically when their triggers match the task context. You ca
 This configuration uses a multi-tier agent system with different models assigned based on task complexity:
 
 ### High Complexity Agents
-| Agent | Purpose | Model | When Invoked |
-|-------|---------|-------|--------------|
+
+| Agent                     | Purpose                                                             | Model          | When Invoked                      |
+| ------------------------- | ------------------------------------------------------------------- | -------------- | --------------------------------- |
 | **creation-orchestrator** | Orchestrates creation workflows across skills, agents, and commands | openai/gpt-5.4 | Complex multi-step creation tasks |
-| **feature-lead** | Leads feature development from spec to implementation | openai/gpt-5.4 | Major feature implementation |
-| **debug-lead** | Leads debugging of complex issues across systems | openai/gpt-5.4 | Complex debugging scenarios |
+| **feature-lead**          | Leads feature development from spec to implementation               | openai/gpt-5.4 | Major feature implementation      |
+| **debug-lead**            | Leads debugging of complex issues across systems                    | openai/gpt-5.4 | Complex debugging scenarios       |
 
 ### Medium Complexity Agents
-| Agent | Purpose | Model | When Invoked |
-|-------|---------|-------|--------------|
-| **reviewer** | Reviews code, specs, and plans for quality and correctness | deepseek/deepseek-reasoner | Code review, spec review, plan review |
-| **feature-manager** | Manages feature implementation tasks and coordination | openai/gpt-5.3-codex | Feature task management |
-| **discovery** | Explores codebases and gathers context for tasks | deepseek/deepseek-reasoner | Codebase exploration, context gathering |
-| **quick-lead** | Leads quick execution tasks and simple implementations | minimax/MiniMax-M2.7 | Quick tasks, simple implementations |
+
+| Agent               | Purpose                                                    | Model                      | When Invoked                            |
+| ------------------- | ---------------------------------------------------------- | -------------------------- | --------------------------------------- |
+| **reviewer**        | Reviews code, specs, and plans for quality and correctness | deepseek/deepseek-reasoner | Code review, spec review, plan review   |
+| **feature-manager** | Manages feature implementation tasks and coordination      | openai/gpt-5.3-codex       | Feature task management                 |
+| **discovery**       | Explores codebases and gathers context for tasks           | deepseek/deepseek-reasoner | Codebase exploration, context gathering |
+| **quick-lead**      | Leads quick execution tasks and simple implementations     | minimax/MiniMax-M2.7       | Quick tasks, simple implementations     |
 
 ### Low Complexity Agents
-| Agent | Purpose | Model | When Invoked |
-|-------|---------|-------|--------------|
+
+| Agent       | Purpose                                  | Model                | When Invoked                        |
+| ----------- | ---------------------------------------- | -------------------- | ----------------------------------- |
 | **builder** | Executes implementation tasks from plans | minimax/MiniMax-M2.7 | Plan execution, code implementation |
 
 ### Agent Dispatch Pattern
 
 Agents are dispatched based on:
+
 1. **Task complexity** (high/medium/low)
 2. **Task type** (creation, debugging, review, implementation)
 3. **Available context** and requirements
@@ -131,16 +144,16 @@ The system automatically selects the appropriate agent based on the task charact
 
 Custom commands provide streamlined workflows for common operations:
 
-| Command | Purpose | Syntax | Examples |
-|---------|---------|--------|----------|
-| **create-agent** | Create new agent definitions | `create-agent <agent-name>` | `create-agent data-analyst` |
-| **create-skill** | Create new skill definitions | `create-skill <skill-name>` | `create-skill data-visualization` |
-| **create-command** | Create new command definitions | `create-command <command-name>` | `create-command analyze-data` |
-| **debug** | Debug code and systems | `debug <issue-description>` | `debug "API returning 500 error"` |
-| **design-opencode** | Design OpenCode configurations | `design-opencode <requirement>` | `design-opencode "add logging system"` |
-| **feature** | Manage feature development | `feature <feature-name>` | `feature "add user authentication"` |
-| **medium-lead** | Medium complexity task management | `medium-lead <task>` | `medium-lead "refactor database layer"` |
-| **quick** | Quick task execution | `quick <task>` | `quick "add comment to function"` |
+| Command             | Purpose                           | Syntax                          | Examples                                |
+| ------------------- | --------------------------------- | ------------------------------- | --------------------------------------- |
+| **create-agent**    | Create new agent definitions      | `create-agent <agent-name>`     | `create-agent data-analyst`             |
+| **create-skill**    | Create new skill definitions      | `create-skill <skill-name>`     | `create-skill data-visualization`       |
+| **create-command**  | Create new command definitions    | `create-command <command-name>` | `create-command analyze-data`           |
+| **debug**           | Debug code and systems            | `debug <issue-description>`     | `debug "API returning 500 error"`       |
+| **design-opencode** | Design OpenCode configurations    | `design-opencode <requirement>` | `design-opencode "add logging system"`  |
+| **feature**         | Manage feature development        | `feature <feature-name>`        | `feature "add user authentication"`     |
+| **medium-lead**     | Medium complexity task management | `medium-lead <task>`            | `medium-lead "refactor database layer"` |
+| **quick**           | Quick task execution              | `quick <task>`                  | `quick "add comment to function"`       |
 
 ### Command Usage
 
@@ -207,6 +220,7 @@ The main configuration file (`opencode.json`) includes:
 ### Permission System
 
 The configuration uses a deny-by-default permission model:
+
 - **Base permissions**: read, grep, glob, todowrite, todoread, skill, logbook operations
 - **Agent-specific permissions**: Additional tools granted per agent type
 - **Security**: Explicit allow listing prevents unauthorized tool access
@@ -221,10 +235,63 @@ Both MCP servers are configurable and can be enabled as needed.
 ### Plugin System
 
 The **superpowers** plugin provides:
+
 - Enhanced skill system with automatic activation
 - Structured workflows (brainstorming, TDD, debugging)
 - Subagent dispatch patterns
 - Plan and spec review systems
+
+#### Telegram Notify Plugin
+
+The `telegram-notify.ts` plugin sends Telegram notifications when OpenCode sessions complete, providing real-time updates on agent activity.
+
+**Features:**
+
+- Sends formatted Telegram messages when sessions go idle (complete)
+- Includes project name, session title, and worktree information
+- Shows last user and assistant messages (truncated for readability)
+- Filters out subagent messages (builder, reviewer) to reduce noise
+- HTML formatting with proper escaping for Telegram
+
+**Configuration:**
+
+1. **Environment Variables:**
+
+   ```bash
+   export OPENCODE_TELEGRAM_BOT_TOKEN="your-bot-token-from-botfather"
+   export OPENCODE_TELEGRAM_CHAT_ID="your-chat-id"
+   ```
+
+2. **Plugin Location:** `plugins/telegram-notify.ts`
+
+3. **Message Format:**
+
+   ```
+   ✅ OpenCode Finished
+
+   📦 Project: project-name
+   🧠 Session: session-title
+   📂 Worktree: worktree-path
+
+   🙋 Last User Message
+   [truncated user message]
+
+   🤖 Last Assistant Message
+   [truncated assistant message]
+   ```
+
+**How It Works:**
+
+- Listens for `session.idle` events from OpenCode
+- Retrieves session details and messages via OpenCode client API
+- Formats messages with HTML for Telegram
+- Sends notifications via Telegram Bot API
+
+**Error Handling:**
+
+- Logs errors to `/tmp/opencode-telegram-notify-error.log`
+- Requires both environment variables to be set
+- Gracefully handles missing data or API failures
 
 ## Usage Examples
 
@@ -296,38 +363,59 @@ feature "add user profile page"
 ### Common Issues
 
 #### Issue: Skills not activating
+
 **Solution**: Check skill triggers match your task description. Use `@skill-name` for explicit invocation.
 
 #### Issue: Permission denied for tools
+
 **Solution**: Verify agent has required permissions in `opencode.json`. Check agent model assignments.
 
 #### Issue: Stitch MCP server not connecting
-**Solution**: 
+
+**Solution**:
+
 1. Set `STITCH_API_KEY` environment variable
 2. Enable Stitch in `opencode.json`: `"enabled": true`
 3. Check network connectivity
 
 #### Issue: Superpowers plugin not loading
-**Solution**: 
+
+**Solution**:
+
 1. Verify plugin URL in `opencode.json`
 2. Check internet connectivity for git clone
 3. Restart OpenCode
 
+#### Issue: Telegram notifications not working
+
+**Solution**:
+
+1. Verify both `OPENCODE_TELEGRAM_BOT_TOKEN` and `OPENCODE_TELEGRAM_CHAT_ID` are set
+2. Check bot token permissions (should be from BotFather)
+3. Verify chat ID is correct (use @userinfobot on Telegram)
+4. Check error logs: `/tmp/opencode-telegram-notify-error.log`
+5. Ensure bot is added to the chat/channel
+
 ### Frequently Asked Questions
 
 #### Q: How do I add a new skill?
+
 **A**: Use `create-skill` command or `@skill-creator` skill. Follow interactive prompts.
 
 #### Q: Can I use different AI models?
+
 **A**: Yes, edit `opencode.json` agent model assignments. Supported models depend on your OpenCode provider.
 
 #### Q: How do I enable Notion integration?
+
 **A**: Set `"enabled": true` in the Notion MCP configuration in `opencode.json`.
 
 #### Q: Can I customize the permission system?
+
 **A**: Yes, edit the `permission` section in `opencode.json`. Use deny-by-default for security.
 
 #### Q: How do I contribute improvements?
+
 **A**: Fork the repository, make changes, and submit a pull request.
 
 ### Debugging Tips

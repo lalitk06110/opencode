@@ -57,6 +57,8 @@ export default async function TelegramNotifyPlugin({ project, client, directory,
 
         const lastUser = [...messages].reverse().find((m: any) => m?.info?.role === 'user');
         const lastAssistant = [...messages].reverse().find((m: any) => m?.info?.role === 'assistant');
+        const agentName = lastAssistant?.info?.agent ?? 'unknown';
+        if (['builder', 'reviewer'].includes(agentName)) return; // skip subagent messages
 
         function escapeHtml(s: string) {
           return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -81,13 +83,13 @@ export default async function TelegramNotifyPlugin({ project, client, directory,
         const sessionName = escapeHtml(sessionTitle);
 
         const text = [
-          `✅ <b>OpenCode — Agent Finished</b>`,
+          `✅ <b>OpenCode Finished</b>`,
           ``,
-          `📁 <b>Project:</b> <code>${projectName}</code>`,
-          `🗂 <b>Session:</b> <code>${sessionName}</code>`,
-          `🗂 <b>Worktree:</b> <code>${worktree}</code>`,
+          `📦 <b>Project:</b> <code>${projectName}</code>`,
+          `🧠 <b>Session:</b> <code>${sessionName}</code>`,
+          `📂 <b>Worktree:</b> <code>${escapeHtml(worktree ?? 'unknown')}</code>`,
           ``,
-          `👤 <b>Last User Message</b>`,
+          `🙋 <b>Last User Message</b>`,
           `<blockquote>${extractText(lastUser)}</blockquote>`,
           ``,
           `🤖 <b>Last Assistant Message</b>`,
