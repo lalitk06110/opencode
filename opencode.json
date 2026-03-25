@@ -6,7 +6,7 @@
     ]
   },
   "plugin": [
-    "superpowers@git+https://github.com/obra/superpowers.git"
+    "superpowers@git+https://github.com/obra/superpowers.git#8ea39819eed74fe2a0338e71789f06b30e953041"
   ],
   "permission": {
     "*": "deny",
