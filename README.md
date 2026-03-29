@@ -109,72 +109,93 @@ Skills activate automatically when their triggers match the task context. You ca
 
 ## Agents Reference
 
-This configuration uses a multi-tier agent system with different models assigned based on task complexity:
+This configuration uses an orchestrator-based agent system where a primary orchestrator delegates work to specialized subagents through structured workflows (lanes).
 
-### High Complexity Agents
+### Primary Orchestrator
 
-| Agent                     | Purpose                                                             | Model          | When Invoked                      |
-| ------------------------- | ------------------------------------------------------------------- | -------------- | --------------------------------- |
-| **creation-orchestrator** | Orchestrates creation workflows across skills, agents, and commands | openai/gpt-5.4 | Complex multi-step creation tasks |
-| **feature-lead**          | Leads feature development from spec to implementation               | openai/gpt-5.4 | Major feature implementation      |
-| **debug-lead**            | Leads debugging of complex issues across systems                    | openai/gpt-5.4 | Complex debugging scenarios       |
+| Agent           | Purpose                                                                    | When Invoked                                         |
+| --------------- | -------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **orchestrator** | Delegation-first orchestrator that follows slash-command workflows and manages subagents without direct repo edits | All tasks initiated via commands |
+| **creation-orchestrator** | Coordinates creation/updating of OpenCode agents, commands, and skills | When creating or updating OpenCode artifacts |
 
-### Medium Complexity Agents
+### Subagents
 
-| Agent               | Purpose                                                    | Model                      | When Invoked                            |
-| ------------------- | ---------------------------------------------------------- | -------------------------- | --------------------------------------- |
-| **reviewer**        | Reviews code, specs, and plans for quality and correctness | minimax/MiniMax-M2.7       | Code review, spec review, plan review   |
-| **feature-manager** | Manages feature implementation tasks and coordination      | openai/gpt-5.3-codex       | Feature task management                 |
-| **discovery**       | Explores codebases and gathers context for tasks           | deepseek/deepseek-reasoner | Codebase exploration, context gathering |
-| **quick-lead**      | Leads quick execution tasks and simple implementations     | minimax/MiniMax-M2.7       | Quick tasks, simple implementations     |
-
-### Low Complexity Agents
-
-| Agent       | Purpose                                  | Model                | When Invoked                        |
-| ----------- | ---------------------------------------- | -------------------- | ----------------------------------- |
-| **builder** | Executes implementation tasks from plans | openai/gpt-5.4-mini  | Plan execution, code implementation |
+| Agent               | Purpose                                                    | Invoked By                                      |
+| ------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
+| **discovery**       | Read-only mapper for repo patterns, edit targets, and verification paths | Orchestrator for codebase mapping |
+| **reviewer**        | Critiques designs and plans for repo fit, edge cases, and avoidable risk | Orchestrator for adversarial review |
+| **feature-manager** | Splits an approved feature design into repo-aligned builder tracks | Orchestrator for execution planning |
+| **builder**         | Executes one approved implementation track and halts on ambiguity | Orchestrator for implementation |
 
 ### Agent Dispatch Pattern
 
-Agents are dispatched based on:
+Agents are dispatched through a lane-based workflow system:
 
-1. **Task complexity** (high/medium/low)
-2. **Task type** (creation, debugging, review, implementation)
-3. **Available context** and requirements
-
-The system automatically selects the appropriate agent based on the task characteristics.
+1. **Commands define lanes**: `/feature`, `/debug`, `/medium`, `/quick` determine the workflow
+2. **Orchestrator manages execution**: The primary orchestrator follows command workflows and delegates to subagents
+3. **Subagent roles**:
+   - `@discovery` - Repository mapping and pattern identification
+   - `@reviewer` - Design critique and risk assessment  
+   - `@feature-manager` - Track planning and execution structure
+   - `@builder` - Implementation execution
+4. **Approval gates**: User confirmation required at key checkpoints before execution
 
 ## Commands Guide
 
-Custom commands provide streamlined workflows for common operations:
+Custom commands provide streamlined workflows through lane-based execution patterns:
 
-| Command             | Purpose                           | Syntax                          | Examples                                |
-| ------------------- | --------------------------------- | ------------------------------- | --------------------------------------- |
-| **create-agent**    | Create new agent definitions      | `create-agent <agent-name>`     | `create-agent data-analyst`             |
-| **create-skill**    | Create new skill definitions      | `create-skill <skill-name>`     | `create-skill data-visualization`       |
-| **create-command**  | Create new command definitions    | `create-command <command-name>` | `create-command analyze-data`           |
-| **debug**           | Debug code and systems            | `debug <issue-description>`     | `debug "API returning 500 error"`       |
-| **design-opencode** | Design OpenCode configurations    | `design-opencode <requirement>` | `design-opencode "add logging system"`  |
-| **feature**         | Manage feature development        | `feature <feature-name>`        | `feature "add user authentication"`     |
-| **medium-lead**     | Medium complexity task management | `medium-lead <task>`            | `medium-lead "refactor database layer"` |
-| **quick**           | Quick task execution              | `quick <task>`                  | `quick "add comment to function"`       |
+| Command             | Purpose                           | Syntax                          | Lane Description |
+| ------------------- | --------------------------------- | ------------------------------- | ---------------- |
+| **feature**         | Major feature development lane    | `feature <description>`         | Full workflow with discovery, design, critique, track planning, and execution |
+| **debug**           | Debug and fix issues              | `debug <issue-description>`     | Evidence-first debugging from symptoms to root cause to narrow fix |
+| **medium**          | Medium-complexity work            | `medium <description>`        | Lighter than feature, more structured than quick |
+| **quick**           | Quick, small isolated changes     | `quick <description>`           | One tiny plan, one build track for low-risk changes |
+| **create-agent**    | Create new agent definitions      | `create-agent <agent-name>`     | Interactive agent creation via creation-orchestrator |
+| **create-skill**    | Create new skill definitions      | `create-skill <skill-name>`     | Interactive skill creation via creation-orchestrator |
+| **create-command**  | Create new command definitions    | `create-command <command-name>` | Interactive command creation via creation-orchestrator |
+| **design-opencode** | Design OpenCode configurations    | `design-opencode <requirement>` | Design agents, commands, or skills setup |
 
-### Command Usage
+### Lane Workflows
 
-Commands can be invoked directly in OpenCode sessions. They trigger the appropriate agents and skills based on the command type and complexity.
+**Feature Lane** (`/feature`):
+1. Intake - Clarify scope and acceptance criteria
+2. Discovery - Delegate codebase mapping to `@discovery`
+3. Initial plan - Draft implementation direction
+4. Detailed design - Propose concrete approach
+5. Adversarial review - Send to `@reviewer` for critique
+6. Build plan - Delegate track planning to `@feature-manager`
+7. Approval gate - User confirmation before execution
+8. Execution - Delegate tracks to `@builder`
+9. Diagnostics and docs - Final cleanup
+10. Wrap up - Report changes and residual risks
 
-### Example Workflow
+**Debug Lane** (`/debug`):
+1. Triage - Invoke systematic debugging
+2. Map the failure - Delegate to `@discovery`
+3. Hypothesis - State likely root cause with evidence
+4. Fix plan - Write smallest targeted change set
+5. Critique - Use `@reviewer` when risk is non-trivial
+6. Approval gate - User confirmation
+7. Execution - Delegate to `@builder`
+8. Verify and wrap - Confirm fix and report findings
 
-```bash
-# Start with a feature
-feature "add dark mode toggle"
+**Medium Lane** (`/medium`):
+1. Intake - Clarify scope
+2. Lightweight discovery - Narrow repo mapping
+3. Goal setting - Define concrete behavior change
+4. Scoped implementation approach - Compact plan
+5. Feature-manager handoff - Delegate to `@feature-manager`
+6. Approval gate - User confirmation
+7. Execute and monitor - Delegate to `@builder`
+8. Wrap up - Report status and risks
 
-# Debug issues that arise
-debug "theme not applying correctly"
-
-# Create custom components if needed
-create-skill theme-manager
-```
+**Quick Lane** (`/quick`):
+1. Quick scope check - Confirm task is narrow
+2. Minimal context gathering - Delegate to `@discovery` if needed
+3. Tiny plan - One compact execution track
+4. Approval gate - User confirmation
+5. Execute - Delegate to `@builder`
+6. Wrap up - Report changes and risks
 
 ## Configuration Details
 
@@ -189,39 +210,76 @@ The main configuration file (`opencode.json`) includes:
     "cors": ["{env:OPENCODE_DOMAIN}"]
   },
   "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
-  "permission": {
-    "*": "deny",
-    "read": "allow",
-    "grep": "allow",
-    "glob": "allow",
-    "todowrite": "allow",
-    "todoread": "allow",
-    "skill": "allow"
-  },
   "agent": {
-    // Agent definitions with model assignments
-    "build": {
-      "model": "deepseek/deepseek-chat"
-    },
     "plan": {
-      "model": "deepseek/deepseek-chat"
+      "options": {},
+      "permission": {
+        "markdown_*": "allow",
+        "webfetch": "allow",
+        "websearch": "allow"
+      }
+    },
+    "build": {
+      "options": {},
+      "permission": {
+        "bash": "allow",
+        "apply_patch": "allow",
+        "edit": "allow",
+        "write": "allow"
+      }
+    },
+    "creation-orchestrator": {
+      "model": "openai/gpt-5.4",
+      "options": {},
+      "permission": {}
+    },
+    "feature-lead": {
+      "model": "openai/gpt-5.4",
+      "options": {},
+      "permission": {}
+    },
+    "debug-lead": {
+      "model": "openai/gpt-5.4",
+      "options": {},
+      "permission": {}
+    },
+    "reviewer": {
+      "model": "fireworks-ai/accounts/fireworks/routers/kimi-k2p5-turbo",
+      "options": {},
+      "permission": {}
+    },
+    "feature-manager": {
+      "model": "openai/gpt-5.3-codex",
+      "options": {},
+      "permission": {}
+    },
+    "discovery": {
+      "model": "fireworks-ai/accounts/fireworks/routers/kimi-k2p5-turbo",
+      "options": {},
+      "permission": {}
+    },
+    "quick-lead": {
+      "model": "minimax/MiniMax-M2.7",
+      "options": {},
+      "permission": {}
     },
     "builder": {
       "model": "openai/gpt-5.4-mini",
       "options": {
         "reasoningEffort": "high"
-      }
+      },
+      "permission": {}
     }
   },
   "mcp": {
     "stitch": {
       "type": "remote",
       "url": "https://stitch.googleapis.com/mcp",
+      "enabled": false,
       "headers": {
         "X-Goog-Api-Key": "{env:STITCH_API_KEY}"
       },
-      "timeout": 1200000,
-      "enabled": false
+      "timeout": 1200000
     },
     "notion": {
       "type": "remote",
@@ -248,6 +306,15 @@ The main configuration file (`opencode.json`) includes:
       "enabled": false,
       "timeout": 60000
     }
+  },
+  "permission": {
+    "*": "deny",
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "todowrite": "allow",
+    "todoread": "allow",
+    "skill": "allow"
   }
 }
 ```
@@ -331,10 +398,78 @@ The `telegram-notify.ts` plugin sends Telegram notifications when OpenCode sessi
 
 ## Usage Examples
 
-### Example 1: Creating a New Skill
+### Example 1: Quick Change
 
 ```bash
-# Invoke the skill-creator skill
+# Small, isolated, low-risk change
+quick "fix typo in README"
+
+# The orchestrator will:
+# 1. Confirm scope is appropriate for quick lane
+# 2. Delegate narrow discovery if needed
+# 3. Create tiny execution plan
+# 4. Request user confirmation
+# 5. Execute with @builder
+# 6. Report results
+```
+
+### Example 2: Medium Complexity Feature
+
+```bash
+# Multi-file feature that's not too complex
+medium "add pagination to user list"
+
+# The orchestrator will:
+# 1. Clarify scope if needed
+# 2. Delegate lightweight discovery to @discovery
+# 3. Propose scoped implementation approach
+# 4. Handoff to @feature-manager for track planning
+# 5. Present execution plan for approval
+# 6. Execute with @builder
+# 7. Report changes and residual risks
+```
+
+### Example 3: Major Feature Development
+
+```bash
+# Complex feature requiring full workflow
+feature "implement user authentication system"
+
+# The orchestrator will:
+# 1. Clarify scope, acceptance criteria, and risks
+# 2. Delegate codebase mapping to @discovery
+# 3. Draft initial implementation plan
+# 4. Create detailed design with tradeoffs
+# 5. Send to @reviewer for adversarial critique
+# 6. Incorporate review feedback
+# 7. Delegate track planning to @feature-manager
+# 8. Present final execution plan for approval
+# 9. Execute tracks with @builder
+# 10. Report changes, validations, and next steps
+```
+
+### Example 4: Debugging
+
+```bash
+# Investigate and fix an issue
+debug "login API returning 500 error"
+
+# The orchestrator will:
+# 1. Invoke systematic debugging
+# 2. Clarify expected vs actual behavior
+# 3. Delegate failure mapping to @discovery
+# 4. Form hypothesis with root cause and evidence
+# 5. Create targeted fix plan
+# 6. Send to @reviewer for critique (if non-trivial)
+# 7. Present plan for approval
+# 8. Execute fix with @builder
+# 9. Verify and report findings
+```
+
+### Example 5: Creating a New Skill
+
+```bash
+# Create a new skill
 @skill-creator create data-visualization
 
 # Follow the interactive prompts:
@@ -346,20 +481,7 @@ The `telegram-notify.ts` plugin sends Telegram notifications when OpenCode sessi
 # The skill will be created in skills/data-visualization/
 ```
 
-### Example 2: Debugging Code
-
-```bash
-# Use the debug command
-debug "Component rendering slowly with large datasets"
-
-# The system will:
-# 1. Dispatch debug-lead agent (high complexity)
-# 2. Analyze performance issues
-# 3. Suggest optimizations (memoization, virtualization)
-# 4. Implement fixes with builder agent
-```
-
-### Example 3: Building React Components
+### Example 6: Building React Components
 
 ```bash
 # Use react-ts-frontend skill
@@ -372,27 +494,14 @@ debug "Component rendering slowly with large datasets"
 # - TypeScript interfaces
 ```
 
-### Example 4: Complete Feature Workflow
-
-```bash
-# Start feature development
-feature "add user profile page"
-
-# System orchestrates:
-# 1. feature-lead agent creates specification
-# 2. designer creates UI mockups (if Stitch enabled)
-# 3. builder implements components
-# 4. reviewer validates implementation
-# 5. Tests are written and run
-```
-
 ### Best Practices
 
-1. **Start with commands**: Use `feature`, `debug`, or `quick` commands for common tasks
-2. **Let skills auto-activate**: Skills trigger based on context; don't force them
-3. **Trust the agent hierarchy**: The system selects appropriate agents automatically
-4. **Use @ syntax for explicit skill invocation**: When you know which skill you need
-5. **Review generated specs/plans**: Always review before implementation
+1. **Use appropriate lane commands**: Choose `/quick` for small isolated changes, `/medium` for moderate complexity, `/feature` for complex work with design checkpoints, `/debug` for investigating issues
+2. **Follow orchestrator-led workflows**: The orchestrator manages the lane workflow; don't skip approval gates
+3. **Let skills auto-activate**: Skills trigger based on context; don't force them
+4. **Trust the subagent delegation**: Discovery, reviewer, feature-manager, and builder are specialized roles
+5. **Use @ syntax for explicit skill invocation**: When you know which skill you need
+6. **Review and approve at checkpoints**: Always review plans before giving final approval at execution gates
 
 ## Troubleshooting & FAQ
 
