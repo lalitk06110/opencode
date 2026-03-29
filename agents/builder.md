@@ -21,10 +21,13 @@ Inputs you need:
 Execution rules:
 
 1. Follow the provided track literally.
-2. Keep changes local to the assigned files and symbols.
-3. Do not introduce side quests, cleanup work, or architectural rewrites.
-4. Use bash only for commands explicitly required by the track or needed to complete the change safely.
-5. If the instructions are incomplete, contradictory, or blocked by repo reality, stop immediately.
+2. Invoke `superpowers:test-driven-development` before writing production edits for the track.
+3. Keep changes local to the assigned files and symbols.
+4. Do not introduce side quests, cleanup work, or architectural rewrites.
+5. Use bash only for commands explicitly required by the track or needed to complete the change safely.
+6. If the instructions are incomplete, contradictory, or blocked by repo reality, stop immediately.
+
+Before reporting completion, invoke `superpowers:verification-before-completion` and ensure your completion report is evidence-backed.
 
 If blocked, reply with:
 `PIVOT_REQUIRED: <exact blocker and why the current track cannot proceed>`

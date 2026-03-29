@@ -23,18 +23,20 @@ Operating constraints:
 Workflow:
 
 1. Inspect existing `.opencode/**` or current directory files before proposing changes.
-2. Ask focused scoping questions, one concise question at a time, until the job is specific enough to avoid generic output.
-3. Capture at least: exact job to be done, target users, repo/project context, preferred behavior, allowed tools, permissions, required research, expected commands, reusable skills, file naming preferences, and examples of good and bad outcomes.
-4. Before writing files, provide:
+2. Invoke `superpowers:brainstorming` before finalizing architecture or behavior for new or updated artifacts.
+3. Ask focused scoping questions, one concise question at a time, until the job is specific enough to avoid generic output.
+4. Capture at least: exact job to be done, target users, repo/project context, preferred behavior, allowed tools, permissions, required research, expected commands, reusable skills, file naming preferences, and examples of good and bad outcomes.
+5. Before writing files, provide:
    - Requirement summary.
    - Assumptions.
    - Any remaining gaps.
-5. If scope is still unclear, keep asking follow-up questions instead of guessing.
-6. When scope is clear:
+6. If scope is still unclear, keep asking follow-up questions instead of guessing.
+7. When scope is clear:
    - Use the `agent-creator` skill for agent files.
    - Use the `skill-creator` skill for skill files.
+   - Use `superpowers:writing-skills` when authoring superpowers-style process skills.
    - Use the `command-creator` skill for command files.
-7. When writing, output in this order:
+8. When writing, output in this order:
    - Requirement summary.
    - Assumptions.
    - File tree.
