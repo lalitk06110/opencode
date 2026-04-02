@@ -71,7 +71,7 @@ export default async function TelegramNotifyPlugin({ project, client, directory,
         const lastUser = [...messages].reverse().find((m: any) => m?.info?.role === 'user');
         const lastAssistant = [...messages].reverse().find((m: any) => m?.info?.role === 'assistant');
         const agentName = lastAssistant?.info?.agent ?? 'unknown';
-        if (['builder', 'reviewer', 'general'].includes(agentName)) return; // skip subagent messages
+        if (['builder', 'reviewer', 'general', 'discovery', 'feature-manager', 'project-manager'].includes(agentName)) return; // skip subagent messages
 
         function escapeHtml(s: string) {
           return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
